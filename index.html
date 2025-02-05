@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرم اطلاعات کاربری</title>
+    <style>
+        body {
+            font-family: 'Tahoma', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            animation: fadeIn 1s ease-out;
+            margin: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            text-align: center;
+            color: #3f4b9b;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #5c6bc0;
+            outline: none;
+        }
+
+        input[type="tel"] {
+            direction: ltr;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #5c6bc0;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3f4b9b;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>فرم ثبت اطلاعات کاربری</h2>
+    <form id="userForm">
+        <div class="form-group">
+            <label for="fullName">نام کامل:</label>
+            <input type="text" id="fullName" name="fullName" required>
+            <div class="error-message" id="nameError">لطفا نام خود را وارد کنید</div>
+        </div>
+
+        <div class="form-group">
+            <label for="phone">شماره تلفن:</label>
+            <input type="tel" id="phone" name="phone" 
+                   pattern="09[0-9]{9}" 
+                   placeholder="09123456789" 
+                   required>
+            <div class="error-message" id="phoneError">شماره تلفن معتبر وارد کنید (09123456789)</div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">ایمیل:</label>
+            <input type="email" id="email" name="email" 
+                   placeholder="example@domain.com" 
+                   required>
+            <div class="error-message" id="emailError">ایمیل معتبر وارد کنید</div>
+        </div>
+
+        <div class="form-group">
+            <label for="address">آدرس:</label>
+            <textarea id="address" name="address" rows="3" required></textarea>
+            <div class="error-message" id="addressError">لطفا آدرس خود را وارد کنید</div>
+        </div>
+
+        <div class="form-group">
+            <label for="message">پیام:</label>
+            <textarea id="message" name="message" rows="4"></textarea>
+        </div>
+
+        <button type="submit" id="submitBtn">ارسال اطلاعات</button>
+    </form>
+</div>
+
+<script>
+    const form = document.getElementById('userForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'در حال ارسال...';
+
+        // Validate form inputs
+        const isValid = validateForm();
+        if (!isValid) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'ارسال اطلاعات';
+            return;
+        }
+
+        // Collect form data
+        const formData = {
+            name: document.getElementById('fullName').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            address: document.getElementById('address').value.trim(),
+            message: document.getElementById('message').value.trim()
+        };
+
+        // Format message for Telegram
+        const message = `📮 اطلاعات جدید کاربر\n\n`
+                      + `👤 نام: ${formData.name}\n`
+                      + `📱 تلفن: ${formData.phone}\n`
+                      + `📧 ایمیل: ${formData.email}\n`
+                      + `🏠 آدرس: ${formData.address}\n`
+                      + `📝 پیام: ${formData.message || 'بدون پیام'}`;
+
+        try {
+            const token = 'YOUR_BOT_TOKEN'; // جایگزینی با توکن ربات
+            const chatId = 'YOUR_CHAT_ID'; // جایگزینی با آیدی چت
+            
+            const response = await fetch(
+                `https://api.telegram.org/bot${token}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                }
+            );
+
+            const data = await response.json();
+            if (data.ok) {
+                alert('اطلاعات با موفقیت ارسال شد!');
+                form.reset();
+            } else {
+                throw new Error('خطا در ارسال اطلاعات');
+            }
+        } catch (error) {
+            alert('خطا در ارتباط با سرور! لطفا دوباره تلاش کنید.');
+            console.error('Error:', error);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'ارسال اطلاعات';
+        }
+    });
+
+    function validateForm() {
+        let isValid = true;
+        const inputs = form.querySelectorAll('input, textarea');
+        
+        inputs.forEach(input => {
+            const errorElement = input.parentElement.querySelector('.error-message');
+            if (input.checkValidity()) {
+                errorElement.style.display = 'none';
+            } else {
+                errorElement.style.display = 'block';
+                isValid = false;
+            }
+        });
+
+        return isValid;
+    }
+
+    // Real-time validation
+    form.querySelectorAll('input, textarea').forEach(input => {
+        input.addEventListener('input', () => {
+            const errorElement = input.parentElement.querySelector('.error-message');
+            if (input.checkValidity()) {
+                errorElement.style.display = 'none';
+            } else {
+                errorElement.style.display = 'block';
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
