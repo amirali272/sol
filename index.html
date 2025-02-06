@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 تولید پسورد تصادفی</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>🔐 تولید پسورد تصادفی</h2>
+        <form method="POST">
+            <input type="text" name="name" placeholder="نام سرویس (مثلاً Gmail)" required>
+            <input type="text" name="website" placeholder="آدرس سایت (مثلاً gmail.com)" required>
+            <button type="submit">تولید پسورد</button>
+        </form>
+
+        {% if password %}
+        <div class="result">
+            <p>📂 <strong>نام:</strong> {{ name }}</p>
+            <p>🌐 <strong>سایت:</strong> {{ website }}</p>
+            <p>🔑 <strong>پسورد شما:</strong> <span class="password">{{ password }}</span></p>
+            <img src="{{ image }}" alt="Password Image">
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
